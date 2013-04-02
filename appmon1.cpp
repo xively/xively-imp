@@ -7,7 +7,7 @@ server.log(format("Running at %.2f V", voltage));
 //////////setup vars///////////////////////////////////////
 local readTime = 100;   //time in ms
 local arraySize = 100; //readings per sample
-local lowThresh = 7;
+local lowThresh = 3;
 local vibratioThreshold = 50;   //check vibration minimum
 local wakeVibratio = 50;    //wake from sleep vibration
 //sleep
@@ -39,16 +39,20 @@ function checkVibs() {
 }
 
 function takeVibratio(){
-    local xVibratio = 0;
+    server.log("take vib->" + hardware.millis())
+    local xVibratio = 0.0;
     
     while(!newData){
-        if(z0 != hardware.pin1.read()){
-            z0 = hardware.pin1.read();
-            zDelta = zLast - z0;
+        if(z0 != (hardware.pin1.read()/64)){
+            z0 = (hardware.pin1.read()/64);
+            zDelta = math.abs(zLast - z0);
             zValues.insert(index,zDelta);
             index++;
-            
+            //server.log(zDelta);
             zLast = z0;
+            
+            //sleep
+            imp.sleep(0.02);
         }
         
         if(index>100){
@@ -57,7 +61,7 @@ function takeVibratio(){
     }
     
     if(newData){
-        server.log("newData");
+        server.log("newData ->" + hardware.millis());
         xVibratio = hardware.pin1.read();
         local lowDelta = 0;
         
@@ -66,7 +70,9 @@ function takeVibratio(){
                 lowDelta++;
             }
         }
+        lowDelta--;
         
+
         server.log(lowDelta);
         server.log(arraySize);
         local sizef = arraySize.tofloat();
