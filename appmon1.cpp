@@ -7,7 +7,7 @@ server.log(format("Running at %.2f V", voltage));
 //////////setup vars///////////////////////////////////////
 local readTime = 100;   //time in ms
 local arraySize = 100; //readings per sample
-local lowThresh = 4;
+local lowThresh = 7;
 local vibratioThreshold = 50;   //check vibration minimum
 local wakeVibratio = 50;    //wake from sleep vibration
 //sleep
@@ -69,7 +69,8 @@ function takeVibratio(){
         
         server.log(lowDelta);
         server.log(arraySize);
-        xVibratio = ((arraySize - lowDelta) / arraySize) * 100;
+        local sizef = arraySize.tofloat();
+        xVibratio = ((arraySize - lowDelta) / sizef) * 100;
         server.log(xVibratio);
         
         newData = 0;
