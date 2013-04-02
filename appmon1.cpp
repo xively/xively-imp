@@ -59,7 +59,18 @@ function takeVibratio(){
     if(newData){
         server.log("newData");
         xVibratio = hardware.pin1.read();
+        local lowDelta = 0;
         
+        foreach(val in zValues){
+            if(val <= lowThresh){
+                lowDelta++;
+            }
+        }
+        
+        server.log(lowDelta);
+        server.log(arraySize);
+        xVibratio = ((arraySize - lowDelta) / arraySize) * 100;
+        server.log(xVibratio);
         
         newData = 0;
         zValues.clear();
