@@ -83,9 +83,8 @@ device.on("activate", activateDevice);
 
 device.on("setup", function(act) {
     server.log("setup on");
-    server.log(act.apikey);
-    server.log(act.feed_id);
-    server.log(act.datastreams[0]);
+    //server.log(act.apikey);
+    //server.log(act.feed_id);
     feedID = act.feed_id;
     apiKey = act.apikey;
     actTable = act;

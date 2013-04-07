@@ -1,5 +1,7 @@
 //basi sensor testing
 hardware.pin1.configure(ANALOG_IN); 
+hardware.pin8.configure(ANALOG_IN); 
+hardware.pin9.configure(ANALOG_IN); 
 local voltage = hardware.voltage();
 server.log("Hardware Configured");
 server.log(format("Running at %.2f V", voltage));
@@ -7,9 +9,9 @@ server.log(format("Running at %.2f V", voltage));
 //////////setup vars///////////////////////////////////////
 local readTime = 100;   //time in ms
 local arraySize = 100; //readings per sample
-local lowThresh = 8;    //default is 5
-local vibratioThresh = 70;   //check vibration minimum
-local wakeVibratio = 50;    //wake from sleep vibration
+local lowThresh = 5;    //default is 5
+local vibratioThresh = 40;   //check vibration minimum
+local wakeVibratio = 30;    //wake from sleep vibration
 //sleep
 local delayMS = 10000;  //delay time in MS
 
@@ -20,11 +22,16 @@ const SERIAL = "aaa001";      //device serial number
 
  //vars//////////////
  local z0 = 0;  //sensor reading var
- local zLast = 0;   //last reading
- local zDelta = 0;  //calced
+ local x0 = 0;
+ local y0 = 0;
+ local ab0 = 0;
  
- local zValues = [arraySize];
- local zVibs = [10];
+ local abLast = 0;   //last reading
+ local abDelta = 0;  //calced
+ 
+ local abValues = [arraySize];
+ local abRaw = [arraySize];
+ local abVibs = [10];
  local runKeeper = [10];
  local index = 0;   //handy
  
@@ -46,7 +53,9 @@ function checkVibs() {
             agent.send("run",hardware.millis());
             server.log("going to sleep");
             server.log("sleep currently disabled");
-            //imp.onidle(function() { server.sleepfor(30.0); } );
+            imp.onidle(function(){ 
+                server.sleepfor(30.0);
+            });
             //server.sleepfor(30.0);
         }
     }
@@ -61,11 +70,16 @@ function takeVibratio(){
     while(!newData){
         if(z0 != (hardware.pin1.read()/64)){
             z0 = (hardware.pin1.read()/64);
-            zDelta = math.abs(zLast - z0);
-            zValues.insert(index,zDelta);
+            x0 = (hardware.pin9.read()/64);
+            y0 = (hardware.pin8.read()/64);
+            ab0 = math.sqrt((z0*z0) + (x0*x0) + (y0*y0));
+            
+            abRaw.insert(index,ab0);
+            abDelta = math.abs(abLast - ab0);
+            abValues.insert(index,abDelta);
             index++;
-            //server.log(zDelta);
-            zLast = z0;
+            //server.log(abDelta);
+            abLast = ab0;
             
             //sleep
             imp.sleep(0.02);
@@ -81,7 +95,7 @@ function takeVibratio(){
         
         local lowDelta = 0;
         
-        foreach(val in zValues){
+        foreach(val in abValues){
             if(val <= lowThresh){
                 lowDelta++;
             }
@@ -96,7 +110,7 @@ function takeVibratio(){
         server.log("vibratio:" + xVibratio);
         
         newData = 0;
-        zValues.clear();
+        abValues.clear();
         index = 0;
     }
     
@@ -104,11 +118,12 @@ function takeVibratio(){
 }
 
 function runDetect(){
+    server.log("detecting run");
     local boolRunning = 0;
     
     for(local i = 0;i < 10; i++){
-        zVibs.insert(i,takeVibratio());
-        if(zVibs[i] >= vibratioThresh){
+        abVibs.insert(i,takeVibratio());
+        if(abVibs[i] >= vibratioThresh){
             runKeeper.insert(i,1);
         }else runKeeper.insert(i,0);
     }
@@ -153,4 +168,4 @@ agent.on("actSuccess", function(actData) {
 imp.configure("AppMon", [], []);
 setupDevice();
 checkVibs();
-agent.send("run",hardware.millis());
+//agent.send("run",hardware.millis());
