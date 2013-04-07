@@ -38,7 +38,7 @@ function checkVibs() {
     imp.wakeup(30.0, checkVibs);
     
     local checkedVib = takeVibratio();
-    server.log("checkedVib="+checkedVib);
+    //server.log("checkedVib="+checkedVib);
     
     if(checkedVib > wakeVibratio){
         server.log("woken");
@@ -153,3 +153,4 @@ agent.on("actSuccess", function(actData) {
 imp.configure("AppMon", [], []);
 setupDevice();
 checkVibs();
+agent.send("run",hardware.millis());
