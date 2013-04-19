@@ -6,7 +6,7 @@ function activateDevice(act){
     server.log("starting activate");
     server.log(act[0]);
     server.log(act[1]);
-        local hash_url = "http://stringycode.com/dev/arduino-cosm/activationhash.php?secret=" + act[0] + "&serial=" + act[1];
+        local hash_url = "https://stringycode.com/dev/arduino-cosm/activationhash.php?secret=" + act[0] + "&serial=" + act[1];
         local hash_req = http.get(hash_url,{});
         local hash_res = hash_req.sendsync();
         server.log(hash_res.body);
@@ -34,7 +34,6 @@ function activateDevice(act){
 function get_cosm(millis) {
     local cosm_url = "https://api.cosm.com/v2/feeds/" + feedID + ".json";
     server.log(cosm_url);
-     
     local getreq = http.get(cosm_url, {"X-ApiKey":apiKey, "User-Agent":"Cosm-Imp-Lib/1.0"});
     local res = getreq.sendsync();
     if(res.statuscode != 200) {
@@ -88,4 +87,16 @@ device.on("setup", function(act) {
     feedID = act.feed_id;
     apiKey = act.apikey;
     actTable = act;
+});
+
+device.on("fourier", function(raw) {
+    server.log("doing fourier");
+   local rawjson = http.jsonencode(raw);
+   //server.log(rawjson);
+    local fourier_url = "https://stringycode.com/dev/arduino-cosm/fourier.php";//?input=" + rawjson;
+    //server.log(fourier_url);
+    local getreq = http.post(fourier_url, {}, rawjson);
+    local res = getreq.sendsync();
+    server.log(res.body);
+   
 });

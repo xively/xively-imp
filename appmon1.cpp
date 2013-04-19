@@ -68,12 +68,12 @@ function takeVibratio(){
     local xVibratio = 0.0;
     
     while(!newData){
-        if(z0 != (hardware.pin1.read()/64)){
+        if(1 == 1){//z0 != (hardware.pin1.read()/64)){
             z0 = (hardware.pin1.read()/64);
             x0 = (hardware.pin9.read()/64);
             y0 = (hardware.pin8.read()/64);
             ab0 = math.sqrt((z0*z0) + (x0*x0) + (y0*y0));
-            
+            //server.log(ab0);
             abRaw.insert(index,ab0);
             abDelta = math.abs(abLast - ab0);
             abValues.insert(index,abDelta);
@@ -82,7 +82,7 @@ function takeVibratio(){
             abLast = ab0;
             
             //sleep
-            imp.sleep(0.02);
+            imp.sleep(0.01);
         }
         
         if(index>100){
@@ -92,7 +92,7 @@ function takeVibratio(){
     
     if(newData){
         server.log("newData ->" + hardware.millis());
-        
+        agent.send("fourier", abRaw);
         local lowDelta = 0;
         
         foreach(val in abValues){
@@ -168,4 +168,5 @@ agent.on("actSuccess", function(actData) {
 imp.configure("AppMon", [], []);
 setupDevice();
 checkVibs();
+server.log("id: " + hardware.getimpeeid());
 //agent.send("run",hardware.millis());
