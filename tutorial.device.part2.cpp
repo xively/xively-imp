@@ -1,7 +1,7 @@
 local index = 0;
 local masterUART = array(100);
 
-//these should be changed to non ascii values
+//these should be changed to non character values
 local startbit = 124;   //which is |
 local endbit = 126;     //which is ~
 
@@ -20,7 +20,7 @@ function checkUART()
   
     while (byte != -1)  
     {
-        server.log(byte);         
+        //server.log(byte);         
         if(byte == endbit){     //check if endbit
             local startint = masterUART.find(startbit);     //find startbit
             if(startint != null){   

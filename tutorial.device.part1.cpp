@@ -1,7 +1,7 @@
 local index = 0;
 local masterUART = array(100);
 
-//these should be changed to non ascii values
+//these should be changed to non character values
 local startbit = 124;   //which is |
 local endbit = 126;     //which is ~
 
@@ -12,6 +12,7 @@ function startUART()
     hardware.uart57.configure(19200, 8, PARITY_NONE, 1, NO_CTSRTS);     //baud:19200, dataBits:8, parity, stopbit
 }
 
+//uart check
 function checkUART()
 {
     imp.wakeup(0.001, checkUART.bindenv(this));
@@ -43,6 +44,11 @@ function checkUART()
     }
 }
 
+
+agent.on("status", function(code) {     //this functions send the cosm put status code to serial port.
+    server.log("agent is on");
+    hardware.uart57.write("\n" + code);
+});
 
 imp.configure("Cosm UART", [], []);     //standard imp configure statement
 startUART();    //setup uart

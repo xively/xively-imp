@@ -32,6 +32,8 @@ function get_cosm() {
     device.send("json", res.body);     //send json
 }
 
+get_cosm();     //initialize first get request. will continue to call itself.
+
 function send_cosm(body) {         //take in csv value
     local cosm_url = "https://api.cosm.com/v2/feeds/" + FEED_ID + ".csv";       //setup url for csv
     server.log(cosm_url);
@@ -44,7 +46,6 @@ function send_cosm(body) {         //take in csv value
 
 }
 
-get_cosm();     //initialize first get request. will continue to call itself.
  
 device.on("data", function(feedCSV) {       //take csv body in from device
     server.log("device on");
