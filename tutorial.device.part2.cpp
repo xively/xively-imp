@@ -2,42 +2,40 @@ local index = 0;
 local masterUART = array(100);
 
 //these should be changed to non ascii values
-local startbit = 88;//which is X
-local endbit = 81;//which is Q
-//methods
-function initUart()
+local startbit = 124;   //which is |
+local endbit = 126;     //which is ~
+
+//uart initialization
+function startUART()
 {
     hardware.configure(UART_57);
-    hardware.uart57.configure(19200, 8, PARITY_NONE, 1, NO_CTSRTS); // 19200 baud
+    hardware.uart57.configure(19200, 8, PARITY_NONE, 1, NO_CTSRTS);     //baud:19200, dataBits:8, parity, stopbit
 }
 
-function pollUart()
+function checkUART()
 {
-    imp.wakeup(0.001, pollUart.bindenv(this));
+    imp.wakeup(0.001, checkUART.bindenv(this));
     
-    local byte = hardware.uart57.read();    // read the UART buffer
+    local byte = hardware.uart57.read();    //read uart 
   
     while (byte != -1)  
     {
-              
-        if(byte == endbit){     //byte 81 is character Q
-            //server.log("master:\n");
-            //server.log(masterUART);
-            local startint = masterUART.find(startbit);
-            if(startint != null){
-                local fullTrans = masterUART.slice((startint + 1),index);
+        server.log(byte);         
+        if(byte == endbit){     //check if endbit
+            local startint = masterUART.find(startbit);     //find startbit
+            if(startint != null){   
+                local fullTrans = masterUART.slice((startint + 1),index);   //slice transmission from checkbits
                 local transString = "";
-                for(local a=0;a<fullTrans.len();a++){
+                for(local a=0;a<fullTrans.len();a++){   //convert char array to string
                     //server.log(fullTrans[a]);
-                    //server.log(format("%c",fullTrans[a]));
-                    transString = transString + format("%c",fullTrans[a]);
+                    transString = transString + format("%c",fullTrans[a]); 
                 }
-                agent.send("data", transString);
+                agent.send("data", transString);    //send string to agent
                 fullTrans.clear();
                 masterUART.clear();
                 index = 0;
             }else server.log("UART ERROR");
-        }else{
+        }else{  //if not endbit, add byte to array
             masterUART.insert(index,byte);
             index ++;
         }
@@ -45,14 +43,18 @@ function pollUart()
     }
 }
 
-
-agent.on("json", function(value) {
+agent.on("json", function(value) {      //receive data from agent
     server.log("agent is on");
-    server.log(value);
+    //server.log(value);                //uncomment to print the data first
     
-    hardware.uart57.write("\n" + value);
+    hardware.uart57.write("\n" + value);        //write data to UART
 });
 
-imp.configure("Cosm UART", [], []);
-initUart(); 
-pollUart();
+agent.on("status", function(code) {     //this functions send the cosm put status code to serial port.
+    server.log("agent is on");
+    hardware.uart57.write("\n" + code);
+});
+
+imp.configure("Cosm UART", [], []);     //standard imp configure statement
+startUART();    //setup uart
+checkUART();    //begin uart polling
