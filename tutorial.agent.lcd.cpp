@@ -3,7 +3,7 @@ const API_KEY = "API_KEY_HERE";
 
 function get_cosm() {
     //wakeup
-    imp.wakeup(30.0, get_cosm);     //schedule when to wakeup again
+    imp.wakeup(15.0, get_cosm);     //schedule when to wakeup again
      
     local cosm_url = "https://api.cosm.com/v2/feeds/" + FEED_ID + ".json";      //format cosm url
     server.log(cosm_url);
@@ -15,24 +15,22 @@ function get_cosm() {
     }
     server.log("#####RESPONSE#####");
     server.log(res.statuscode + " OK");     //status
-    server.log(res.body);                   //body
+    //server.log(res.body);                   //body
     //format data into table - uncomment to use
-//    local resTable = http.jsondecode(res.body);
-//    server.log("table:");
-//    server.log(resTable.title);
-//    server.log(resTable.id);
-//    //print ds0
-//    server.log(resTable.datastreams[0].id);
-//    server.log(resTable.datastreams[0].current_value + " at " + resTable.datastreams[0].at);
+    local resTable = http.jsondecode(res.body);
+    server.log("table:");
+    server.log(resTable.title);
+    server.log(resTable.id);
+    //print ds0
+    server.log(resTable.datastreams[0].id);
+    server.log(resTable.datastreams[0].current_value + " at " + resTable.datastreams[0].at);
     
     
     //send to device
-    //device.send("value", resTable.datastreams[0].current_value);      //send custom data from table
+    device.send("value", resTable.datastreams[0].id + "," + resTable.datastreams[0].current_value);      //send datastream 0 info
     
-    device.send("json", res.body);     //send json
+    //device.send("json", res.body);     //send json
 }
-
-get_cosm();     //initialize first get request. will continue to call itself.
 
 function send_cosm(body) {         //take in csv value
     local cosm_url = "https://api.cosm.com/v2/feeds/" + FEED_ID + ".csv";       //setup url for csv
@@ -46,6 +44,7 @@ function send_cosm(body) {         //take in csv value
 
 }
 
+get_cosm();     //initialize first get request. will continue to call itself.
  
 device.on("data", function(feedCSV) {       //take csv body in from device
     server.log("device on");

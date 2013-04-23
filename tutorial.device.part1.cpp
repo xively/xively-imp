@@ -1,5 +1,5 @@
 local index = 0;
-local masterUART = array(100);
+local masterUART = array(100);      //serial buffer
 
 //these should be changed to non character values
 local startbit = 124;   //which is |
