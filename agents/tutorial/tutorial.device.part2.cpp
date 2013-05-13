@@ -50,11 +50,11 @@ agent.on("json", function(value) {      //receive data from agent
     hardware.uart57.write("\n" + value);        //write data to UART
 });
 
-agent.on("status", function(code) {     //this functions send the cosm put status code to serial port.
+agent.on("status", function(code) {     //this functions send the xively put status code to serial port.
     server.log("agent is on");
     hardware.uart57.write("\n" + code);
 });
 
-imp.configure("Cosm UART", [], []);     //standard imp configure statement
+imp.configure("Xively UART", [], []);     //standard imp configure statement
 startUART();    //setup uart
 checkUART();    //begin uart polling

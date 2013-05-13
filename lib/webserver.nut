@@ -9,7 +9,7 @@ function webserver(request,res){
 //    }
     //RETURN TRIGGER DS AND VALUE
     local trig = parsedTable.triggering_datastream.id + "," + parsedTable.triggering_datastream.value.value;
-    //return to cosm
+    //return to xively
     res.send(200, "okay");
     //print to log - could also send to device
     server.log(trig);

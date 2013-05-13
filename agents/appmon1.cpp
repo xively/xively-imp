@@ -15,7 +15,7 @@ local wakeVibratio = 30;    //wake from sleep vibration
 //sleep
 local delayMS = 10000;  //delay time in MS
 
-//cosm stuff
+//xively stuff
 const SECRET = "ee2ab38f9b85b6b2c1b150b1d416b3fa2683dc72";      //product secret
 const SERIAL = "aaa001";      //device serial number
 ///////////////////////////////////////////////////////////

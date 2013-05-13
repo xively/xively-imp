@@ -1,14 +1,14 @@
 const FEED_ID = "FEED_ID_HERE";
 const API_KEY = "API_KEY_HERE";
 
-function get_cosm() {
+function get_xively() {
     //wakeup
-    imp.wakeup(15.0, get_cosm);     //schedule when to wakeup again
+    imp.wakeup(15.0, get_xively);     //schedule when to wakeup again
      
-    local cosm_url = "https://api.cosm.com/v2/feeds/" + FEED_ID + ".json";      //format cosm url
-    server.log(cosm_url);
+    local xively_url = "https://api.xively.com/v2/feeds/" + FEED_ID + ".json";      //format xively url
+    server.log(xively_url);
      
-    local getreq = http.get(cosm_url, {"X-ApiKey":API_KEY, "User-Agent":"Cosm-Imp-Lib/1.0"});       //add headers
+    local getreq = http.get(xively_url, {"X-ApiKey":API_KEY, "User-Agent":"Xively-Imp-Lib/1.0"});       //add headers
     local res = getreq.sendsync();      //actuallty send request
     if(res.statuscode != 200) {
         server.log("error sending message: " + res.body);
@@ -32,11 +32,11 @@ function get_cosm() {
     //device.send("json", res.body);     //send json
 }
 
-function send_cosm(body) {         //take in csv value
-    local cosm_url = "https://api.cosm.com/v2/feeds/" + FEED_ID + ".csv";       //setup url for csv
-    server.log(cosm_url);
+function send_xively(body) {         //take in csv value
+    local xively_url = "https://api.xively.com/v2/feeds/" + FEED_ID + ".csv";       //setup url for csv
+    server.log(xively_url);
     server.log(body);       //pring body for testing
-    local req = http.put(cosm_url, {"X-ApiKey":API_KEY, "Content-Type":"text/csv", "User-Agent":"Cosm-Imp-Lib/1.0"}, body);     //add headers
+    local req = http.put(xively_url, {"X-ApiKey":API_KEY, "Content-Type":"text/csv", "User-Agent":"Xively-Imp-Lib/1.0"}, body);     //add headers
     local res = req.sendsync();         //send request
     if(res.statuscode != 200) {
         server.log("error sending message: "+res.body);
@@ -44,11 +44,11 @@ function send_cosm(body) {         //take in csv value
 
 }
 
-get_cosm();     //initialize first get request. will continue to call itself.
+get_xively();     //initialize first get request. will continue to call itself.
  
 device.on("data", function(feedCSV) {       //take csv body in from device
     server.log("device on");
     
     //send preformatted multi-ds csv
-    send_cosm(feedCSV);         //send to function to call cosm
+    send_xively(feedCSV);         //send to function to call xively
 });
